@@ -1,12 +1,6 @@
 {
     "name": "imsglobal/lti-1p3-tool",
     "type": "library",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/psenicka0101/php-jwt"
-        }
-    ],
     "require": {
         "har3/php-jwt": "dev-master",
         "phpseclib/phpseclib": "^2.0"
