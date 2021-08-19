@@ -1,7 +1,7 @@
 <?php
 namespace IMSGlobal\LTI;
 
-use Firebase\JWT\JWT;
+use Har3\JWT\JWT;
 
 class LTI_Service_Connector {
 
