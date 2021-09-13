@@ -78,6 +78,7 @@ class LTI_Service_Connector {
         $response = curl_exec($ch);
         if (curl_errno($ch)){
             echo 'Request Error:' . curl_error($ch);
+            throw new LTI_Exception("Failed to send grade.", 1);
         }
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         curl_close ($ch);
