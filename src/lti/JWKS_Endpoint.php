@@ -2,7 +2,7 @@
 namespace IMSGlobal\LTI;
 
 use phpseclib\Crypt\RSA;
-use Har3\JWT\JWT;
+use Firebase\JWT\JWT;
 
 class JWKS_Endpoint {
 

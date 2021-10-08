@@ -17,8 +17,10 @@ class LTI_Lineitem {
         $this->id = $lineitem["id"];
         $this->score_maximum = $lineitem["scoreMaximum"];
         $this->label = $lineitem["label"];
-        $this->resource_id = $lineitem["resourceId"];
-        $this->tag = $lineitem["tag"];
+        if (isset($lineitem["resourceId"]))
+            $this->resource_id = $lineitem["resourceId"];
+        if (isset($lineitem["tag"]))
+            $this->tag = $lineitem["tag"];
         if (isset($lineitem["startDateTime"]))
             $this->start_date_time = $lineitem["startDateTime"];
         if (isset($lineitem["endDateTime"]))

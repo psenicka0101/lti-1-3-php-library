@@ -1,7 +1,7 @@
 <?php
 namespace IMSGlobal\LTI;
 
-use Har3\JWT\JWT;
+use Firebase\JWT\JWT;
 class LTI_Deep_Link {
 
     private $registration;
@@ -37,7 +37,7 @@ class LTI_Deep_Link {
         <form id="auto_submit" action="<?= $this->deep_link_settings['deep_link_return_url']; ?>" method="POST">
             <input type="hidden" name="JWT" value="<?= $jwt ?>" />
             <!-- <input type="submit" name="Go" /> -->
-            <div>Submitting configuration...</div>
+            <div>Configuring...</div>
         </form>
         <script>
             document.getElementById('auto_submit').submit();
