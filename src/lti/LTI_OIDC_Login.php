@@ -6,6 +6,7 @@ class LTI_OIDC_Login {
     private $db;
     private $cache;
     private $cookie;
+    private $extraid;
 
     /**
      * Constructor
@@ -14,7 +15,7 @@ class LTI_OIDC_Login {
      * @param Cache     $cache      Instance of the Cache interface used to loading and storing launches. If non is provided launch data will be store in $_SESSION.
      * @param Cookie    $cookie     Instance of the Cookie interface used to set and read cookies. Will default to using $_COOKIE and setcookie.
      */
-    function __construct(Database $database, Cache $cache = null, Cookie $cookie = null) {
+    function __construct(Database $database, $extraid, Cache $cache = null, Cookie $cookie = null) {
         $this->db = $database;
         if ($cache === null) {
             $cache = new Cache();
@@ -25,13 +26,15 @@ class LTI_OIDC_Login {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
+
+        $this->extraid = $extraid;
     }
 
     /**
      * Static function to allow for method chaining without having to assign to a variable first.
      */
-    public static function new(Database $database, Cache $cache = null, Cookie $cookie = null) {
-        return new LTI_OIDC_Login($database, $cache, $cookie);
+    public static function new(Database $database, $extraid, Cache $cache = null, Cookie $cookie = null) {
+        return new LTI_OIDC_Login($database, $extraid, $cache, $cookie);
     }
 
     /**
@@ -107,7 +110,7 @@ class LTI_OIDC_Login {
         }
 
         // Fetch Registration Details.
-        $registration = $this->db->find_registration_by_issuer($request['iss']);
+        $registration = $this->db->find_registration_by_issuer($request['iss'], $this->extraid);
 
         // Check we got something.
         if (empty($registration)) {

@@ -15,7 +15,8 @@ class Cookie {
 
     public function set_cookie($name, $value, $exp = 3600, $options = []) {
         $cookie_options = [
-            'expires' => time() + $exp
+            'expires' => time() + $exp,
+            'path' => '/'
         ];
 
         // SameSite none and secure will be required for tools to work inside iframes

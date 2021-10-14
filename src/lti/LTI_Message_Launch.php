@@ -15,6 +15,7 @@ class LTI_Message_Launch {
     private $jwt;
     private $registration;
     private $launch_id;
+    private $extraid;
 
     /**
      * Constructor
@@ -23,7 +24,7 @@ class LTI_Message_Launch {
      * @param Cache     $cache      Instance of the Cache interface used to loading and storing launches. If non is provided launch data will be store in $_SESSION.
      * @param Cookie    $cookie     Instance of the Cookie interface used to set and read cookies. Will default to using $_COOKIE and setcookie.
      */
-    function __construct(Database $database, Cache $cache = null, Cookie $cookie = null) {
+    function __construct(Database $database, $extraid, Cache $cache = null, Cookie $cookie = null) {
         $this->db = $database;
 
         $this->launch_id = uniqid("lti1p3_launch_", true);
@@ -37,13 +38,15 @@ class LTI_Message_Launch {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
+
+        $this->extraid = $extraid;
     }
 
     /**
      * Static function to allow for method chaining without having to assign to a variable first.
      */
-    public static function new(Database $database, Cache $cache = null, Cookie $cookie = null) {
-        return new LTI_Message_Launch($database, $cache, $cookie);
+    public static function new(Database $database, $extraid, Cache $cache = null, Cookie $cookie = null) {
+        return new LTI_Message_Launch($database, $extraid, $cache, $cookie);
     }
 
     /**
@@ -57,7 +60,7 @@ class LTI_Message_Launch {
      * @return LTI_Message_Launch   A populated and validated LTI_Message_Launch.
      */
     public static function from_cache($launch_id, Database $database, Cache $cache = null) {
-        $new = new LTI_Message_Launch($database, $cache, null);
+        $new = new LTI_Message_Launch($database, null, $cache, null);
         $new->launch_id = $launch_id;
         $new->jwt = [ 'body' => $new->cache->get_launch_data($launch_id) ];
         return $new->validate_registration();
@@ -80,6 +83,7 @@ class LTI_Message_Launch {
 
         return $this->validate_state()
             ->validate_jwt_format()
+            ->insert_extraid()
             ->validate_nonce()
             ->validate_registration()
             ->validate_jwt_signature()
@@ -268,6 +272,11 @@ class LTI_Message_Launch {
         return $this;
     }
 
+    private function insert_extraid() {
+        $this->jwt['body']['__extraid'] = $this->extraid;
+        return $this;
+    }
+
     private function validate_nonce() {
         if (!$this->cache->check_nonce($this->jwt['body']['nonce'])) {
             //throw new LTI_Exception("Invalid Nonce");
@@ -277,7 +286,7 @@ class LTI_Message_Launch {
 
     private function validate_registration() {
         // Find registration.
-        $this->registration = $this->db->find_registration_by_issuer($this->jwt['body']['iss']);
+        $this->registration = $this->db->find_registration_by_issuer($this->jwt['body']['iss'], $this->jwt['body']['__extraid']);
 
         if (empty($this->registration)) {
             throw new LTI_Exception("Registration not found.", 1);
@@ -311,7 +320,7 @@ class LTI_Message_Launch {
 
     private function validate_deployment() {
         // Find deployment.
-        $deployment = $this->db->find_deployment($this->jwt['body']['iss'], $this->jwt['body']['https://purl.imsglobal.org/spec/lti/claim/deployment_id']);
+        $deployment = $this->db->find_deployment($this->jwt['body']['iss'], $this->jwt['body']['__extraid'], $this->jwt['body']['https://purl.imsglobal.org/spec/lti/claim/deployment_id']);
 
         if (empty($deployment)) {
             // deployment not recognized.
